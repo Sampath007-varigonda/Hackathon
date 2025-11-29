@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/axios';
 import { useAuth } from '../context/AuthContext';
 import { format, differenceInDays, isPast } from 'date-fns';
 import './CertificationList.css';
@@ -17,7 +17,7 @@ function CertificationList() {
 
   const fetchCertifications = async () => {
     try {
-      const response = await axios.get('/api/certifications');
+      const response = await api.get('/api/certifications');
       setCertifications(response.data);
     } catch (error) {
       setError('Failed to fetch certifications');
@@ -33,7 +33,7 @@ function CertificationList() {
     }
 
     try {
-      await axios.delete(`/api/certifications/${id}`);
+      await api.delete(`/api/certifications/${id}`);
       setCertifications(certifications.filter(c => c.id !== id));
     } catch (error) {
       alert('Failed to delete certification');
@@ -148,6 +148,7 @@ function CertificationList() {
 }
 
 export default CertificationList;
+
 
 
 

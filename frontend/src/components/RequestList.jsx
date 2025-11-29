@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/axios';
 import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns';
 import './RequestList.css';
@@ -17,7 +17,7 @@ function RequestList() {
 
   const fetchRequests = async () => {
     try {
-      const response = await axios.get('/api/requests');
+      const response = await api.get('/api/requests');
       setRequests(response.data);
     } catch (error) {
       setError('Failed to fetch requests');
@@ -29,7 +29,7 @@ function RequestList() {
 
   const handleApprove = async (id) => {
     try {
-      const response = await axios.post(`/api/requests/${id}/approve`);
+      const response = await api.post(`/api/requests/${id}/approve`);
       alert(response.data.message || 'Request approved successfully!');
       fetchRequests();
     } catch (error) {
@@ -44,7 +44,7 @@ function RequestList() {
     if (reason === null) return; // User cancelled
 
     try {
-      await axios.post(`/api/requests/${id}/reject`, { rejection_reason: reason });
+      await api.post(`/api/requests/${id}/reject`, { rejection_reason: reason });
       alert('Request rejected successfully!');
       fetchRequests();
     } catch (error) {
@@ -59,7 +59,7 @@ function RequestList() {
     }
 
     try {
-      await axios.delete(`/api/requests/${id}`);
+      await api.delete(`/api/requests/${id}`);
       setRequests(requests.filter(r => r.id !== id));
     } catch (error) {
       alert('Failed to delete request');

@@ -48,3 +48,4 @@ db.all("PRAGMA table_info(certifications)", (err, columns) => {
 
 
 
+

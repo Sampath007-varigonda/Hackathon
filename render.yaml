@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: certification-tracker-backend
+    env: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: JWT_SECRET
+        generateValue: true
+
+  - type: web
+    name: certification-tracker-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    rootDir: frontend
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: certification-tracker-backend
+          property: host

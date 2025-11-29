@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/axios';
 import { useAuth } from '../context/AuthContext';
 import { format, differenceInDays, isPast, isAfter } from 'date-fns';
 import './Dashboard.css';
@@ -24,9 +24,9 @@ function Dashboard() {
   const fetchData = async () => {
     try {
       const [certificationsRes, expiringRes, requestsRes] = await Promise.all([
-        axios.get('/api/certifications'),
-        axios.get('/api/certifications/expiring/soon'),
-        axios.get('/api/requests')
+        api.get('/api/certifications'),
+        api.get('/api/certifications/expiring/soon'),
+        api.get('/api/requests')
       ]);
 
       const certifications = certificationsRes.data;

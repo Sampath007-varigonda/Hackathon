@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/axios';
 import { useAuth } from '../context/AuthContext';
 import './CertificationForm.css';
 
@@ -32,7 +32,7 @@ function CertificationForm() {
 
   const fetchCertification = async () => {
     try {
-      const response = await axios.get(`/api/certifications/${id}`);
+      const response = await api.get(`/api/certifications/${id}`);
       const cert = response.data;
       setFormData({
         name: cert.name || '',
@@ -84,7 +84,7 @@ function CertificationForm() {
       }
 
       if (isEdit) {
-        await axios.put(`/api/certifications/${id}`, submitData, {
+        await api.put(`/api/certifications/${id}`, submitData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -98,7 +98,7 @@ function CertificationForm() {
         const endpoint = user?.role === 'admin' ? '/api/certifications' : '/api/requests';
         const redirectPath = user?.role === 'admin' ? '/certifications' : '/requests';
         
-        await axios.post(endpoint, submitData, {
+        await api.post(endpoint, submitData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
