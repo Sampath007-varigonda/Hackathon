@@ -53,12 +53,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (username, email, password) => {
+  const register = async (username, email, password, isAdmin = false) => {
     try {
       const response = await axios.post('/api/auth/register', {
         username,
         email,
-        password
+        password,
+        isAdmin
       });
       const { token, user } = response.data;
       localStorage.setItem('token', token);
@@ -90,4 +91,5 @@ export const AuthProvider = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
 

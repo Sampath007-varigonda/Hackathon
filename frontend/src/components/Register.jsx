@@ -8,7 +8,8 @@ function Register() {
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    isAdmin: false
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,15 +17,43 @@ function Register() {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: type === 'checkbox' ? checked : value
     });
+    
+    // Auto-validate admin username format
+    if (name === 'username' && formData.isAdmin) {
+      if (value && !value.startsWith('@') && !value.startsWith('!')) {
+        setError('Admin username must start with @ or !');
+      } else {
+        setError('');
+      }
+    }
+  };
+
+  const handleAdminToggle = (e) => {
+    const isAdmin = e.target.checked;
+    setFormData({
+      ...formData,
+      isAdmin: isAdmin,
+      username: '' // Reset username when toggling
+    });
+    setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Validate admin username
+    if (formData.isAdmin) {
+      if (!formData.username.startsWith('@') && !formData.username.startsWith('!')) {
+        setError('Admin username must start with @ or !');
+        return;
+      }
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -38,7 +67,8 @@ function Register() {
 
     setLoading(true);
 
-    const result = await register(formData.username, formData.email, formData.password);
+    // Register with admin flag
+    const result = await register(formData.username, formData.email, formData.password, formData.isAdmin);
 
     if (result.success) {
       navigate('/dashboard');
@@ -120,4 +150,5 @@ function Register() {
 }
 
 export default Register;
+
 

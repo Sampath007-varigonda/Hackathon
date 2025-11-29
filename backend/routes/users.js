@@ -63,3 +63,6 @@ router.get('/:id/certifications', authenticate, (req, res) => {
 
 module.exports = router;
 
+
+
+

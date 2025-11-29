@@ -8,10 +8,28 @@ const router = express.Router();
 
 // Register
 router.post('/register', async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, isAdmin } = req.body;
 
   if (!username || !email || !password) {
     return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  // Validate admin username format
+  let userRole = 'user';
+  if (isAdmin) {
+    if (!username.startsWith('@') && !username.startsWith('!')) {
+      return res.status(400).json({ 
+        error: 'Admin username must start with @ or ! (e.g., @admin or !admin)' 
+      });
+    }
+    userRole = 'admin';
+  } else {
+    // Regular users cannot use @ or ! prefix
+    if (username.startsWith('@') || username.startsWith('!')) {
+      return res.status(400).json({ 
+        error: 'Username cannot start with @ or !. Use Admin registration for admin accounts.' 
+      });
+    }
   }
 
   const db = getDb();
@@ -19,7 +37,7 @@ router.post('/register', async (req, res) => {
 
   db.run(
     'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)',
-    [username, email, hashedPassword, 'user'],
+    [username, email, hashedPassword, userRole],
     function(err) {
       if (err) {
         if (err.message.includes('UNIQUE constraint')) {
@@ -29,15 +47,15 @@ router.post('/register', async (req, res) => {
       }
 
       const token = jwt.sign(
-        { id: this.lastID, username, email, role: 'user' },
+        { id: this.lastID, username, email, role: userRole },
         JWT_SECRET,
         { expiresIn: '7d' }
       );
 
       res.status(201).json({
-        message: 'User created successfully',
+        message: `${userRole === 'admin' ? 'Admin' : 'User'} created successfully`,
         token,
-        user: { id: this.lastID, username, email, role: 'user' }
+        user: { id: this.lastID, username, email, role: userRole }
       });
     }
   );
@@ -103,4 +121,5 @@ router.get('/me', authenticate, (req, res) => {
 });
 
 module.exports = router;
+
 

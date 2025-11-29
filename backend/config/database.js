@@ -129,21 +129,38 @@ const createTables = () => {
 const createDefaultAdmin = () => {
   const bcrypt = require('bcryptjs');
   const defaultPassword = bcrypt.hashSync('admin123', 10);
+  const adminUsername = '@admin';
   
-  db.get('SELECT * FROM users WHERE username = ?', ['admin'], (err, row) => {
+  // Check for existing admin (try @admin, !admin, or admin)
+  db.get('SELECT * FROM users WHERE username IN (?, ?, ?) AND role = ?', ['@admin', '!admin', 'admin', 'admin'], (err, row) => {
     if (err) {
       console.error('Error checking admin user:', err);
       return;
     }
     if (!row) {
+      // Create admin with @ prefix
       db.run(
         'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)',
-        ['admin', 'admin@example.com', defaultPassword, 'admin'],
+        [adminUsername, 'admin@example.com', defaultPassword, 'admin'],
         (err) => {
           if (err) {
             console.error('Error creating admin user:', err);
           } else {
-            console.log('Default admin user created (username: admin, password: admin123)');
+            console.log('✅ Default admin user created (username: @admin, password: admin123)');
+            console.log('Note: Admin usernames must start with @ or !');
+          }
+        }
+      );
+    } else {
+      // Admin exists - reset password to ensure it works
+      db.run(
+        'UPDATE users SET password = ? WHERE username = ? AND role = ?',
+        [defaultPassword, row.username, 'admin'],
+        (err) => {
+          if (err) {
+            console.error('Error resetting admin password:', err);
+          } else {
+            console.log(`✅ Admin password reset (username: ${row.username}, password: admin123)`);
           }
         }
       );
